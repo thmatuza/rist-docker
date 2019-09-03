@@ -1,0 +1,19 @@
+version: "3"
+services:
+  sender:
+    image: gstreamer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5004:5004/udp
+    environment:
+      - GST_DEBUG=*:3
+    command : "gst-launch-1.0 udpsrc ! tsparse set-timestamps=1 ! \
+ rtpmp2tpay ! ristsink address=receiver"
+
+  receiver:
+    image: gstreamer
+    environment:
+      - GST_DEBUG=*:3
+    command :  "gst-launch-1.0 ristsrc ! rtpmp2tdepay ! udpsink host=host.docker.internal port=5005"
